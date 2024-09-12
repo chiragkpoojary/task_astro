@@ -1,77 +1,76 @@
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
-import { Button} from '@headlessui/react'
+import { Button } from '@headlessui/react';
 import axios from 'axios';
 
 interface Task {
-    title: string;
-    
-  }
+   _id: string;
+  title: string;
+}
+
 const TaskList = () => {
-    const [tasks, setTasks] = useState<Task[]>([]);
-    const [newTask, setNewTask] = useState('');
-    const [token, setToken] = useState('');
-        const [currentPage, setCurrentPage] = useState(1);
-        const [rowsPerPage, setRowsPerPage] = useState(10);
-        const [editingTask, setEditingTask] = useState<null | Task>(null);;
-        useEffect(() => {
-            const fetchTasks = async () => {
-                try {
-                    const token = localStorage.getItem('token');
-                    const response = await axios.get('http://localhost:8080/tasks', {
-                        headers: {
-                            Authorization: `Bearer ${token}`, // Include JWT in request
-                        },
-                    });
-                    setTasks(response.data);
-                } catch (error) {
-                    console.error('Error fetching tasks:', error);
-                }
-            };
-            fetchTasks();
-        }, []);
-    
-        // Add new task
-        const addTask = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                await axios.post(
-                    'http://localhost:8080/addtask',
-                    { task: newTask },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`, // Include JWT
-                        },
-                    }
-                );
-                setNewTask(''); // Clear input after adding
-                // Refresh task list
-                const response = await axios.get('http://localhost:8080/tasks', {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                setTasks(response.data);
-            } catch (error) {
-                console.error('Error adding task:', error);
-            }
-        };
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [newTask, setNewTask] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [editingTask, setEditingTask] = useState<null | Task>(null);
 
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/tasks');
+        console.log(response.data)
+        setTasks(response.data);
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+      }
+    };
+    fetchTasks();
+  }, []);
 
-
+  const addTask = async () => {
+    try {
+     
+      await axios.post('http://localhost:8080/addtask', { task: newTask });
+       setNewTask(" ")
+      const response = await axios.get('http://localhost:8080/tasks');
+      console.log(response.data)
+      setTasks(response.data);
+    } catch (error) {
+      console.error('Error adding task:', error);
+    }
+  };
 
   const handleEdit = (task: Task) => {
     setEditingTask(task);
   };
 
-  const handleDelete = (taskTitle: any) => {
-    setTasks(tasks.filter(task => task.title !== taskTitle));
+  const handleDelete = async (taskId: string) => {
+    try {
+       const objectId = taskId["$oid"];
+      await axios.delete(`http://localhost:8080/delete/${objectId}`);
+      const response = await axios.get('http://localhost:8080/tasks');
+        console.log(response.data)
+        setTasks(response.data);
+ // Update the state after deletion
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
   };
 
-  const handleSave = (event: { preventDefault: () => void; }) => {
+  const handleSave = async (event: React.FormEvent) => {
     event.preventDefault();
-    // setTasks(tasks.map(task => task.id === editingTask.id ? editingTask : task));
-    setEditingTask(null);
+    // Save the edited task
+    // Example implementation, assuming you have an endpoint for saving edited tasks
+    try {
+      await axios.put(`http://localhost:8080/edit-task`, { task: editingTask });
+      // Refresh task list
+      const response = await axios.get('http://localhost:8080/tasks');
+      setTasks(response.data);
+      setEditingTask(null);
+    } catch (error) {
+      console.error('Error saving task:', error);
+    }
   };
 
   const indexOfLastTask = currentPage * rowsPerPage;
@@ -89,9 +88,12 @@ const TaskList = () => {
     type="text"
     placeholder="Add tasks..."
     className="bg-gray-800 text-white p-4 pr-16 rounded w-full"
+        onChange={(e) => setNewTask(e.target.value)}
+          value={newTask}
   />
   <Button
-    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-400 py-1 px-3 text-sm font-semibold text-white rounded-md shadow-inner focus:outline-none hover:bg-gray-600 w-20 h-10"
+    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-400 py-1 px-3 text-sm font-semibold text-white rounded-md shadow-inner focus:outline-none hover:bg-gray-600 w-20 h-10 "
+          onClick={addTask}
   >
     Add
   </Button>
@@ -108,13 +110,13 @@ const TaskList = () => {
 
         </thead>
         <tbody>
-          {currentTasks.map((task,index) => (
+          {tasks.map((task,index) => (
             <tr key={index} className="border-t border-gray-800">
               <td className="py-3">
                 <div className="flex items-center space-x-2">
                  
                 
-                    <div className="font-medium text-xl">{task.title}</div>
+                    <div className="font-medium text-xl">{task.task}</div>
                     <div className="text-sm text-gray-400"></div>
                 
                 </div>
@@ -127,7 +129,7 @@ const TaskList = () => {
 </td>
 <td className="">
   <div className="flex justify-start ml-5">
-    <button onClick={() => handleDelete(task.title)} className="text-red-500"><Trash2 size={20} /></button>
+    <button onClick={() => handleDelete(task._id)} className="text-red-500"><Trash2 size={20} /></button>
   </div>
 </td>
             </tr>

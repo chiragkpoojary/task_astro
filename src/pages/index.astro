@@ -1,5 +1,6 @@
 ---
-import Signin from "../components/sign_in.tsx";
+import TaskDashboard from "../components/task";
+
 ---
  
 <html lang="en">
@@ -11,7 +12,9 @@ import Signin from "../components/sign_in.tsx";
     <title>Astro</title>
   </head>
   <body class="bg-gray-900">
-    <Signin client:load />
+      <!--<Signin client:load />-->
+      <TaskDashboard client:visible/>
+      
    
   </body>
 </html>
