@@ -13,7 +13,9 @@ const TaskList = () => {
   const [newTask, setNewTask] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [editingTask, setEditingTask] = useState<null | Task>(null);
+   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editTaskValue, setEditTaskValue] = useState('');
+const [edit,setedit]=useState<boolean>(false);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -42,13 +44,17 @@ const TaskList = () => {
   };
 
   const handleEdit = (task: Task) => {
-    setEditingTask(task);
+    setEditingTaskId(task._id);
+    setedit(true)
+    setEditTaskValue(task.title);
   };
-
   const handleDelete = async (taskId: string) => {
     try {
        const objectId = taskId["$oid"];
-      await axios.delete(`http://localhost:8080/delete/${objectId}`);
+      console.log("objectId is ", objectId)
+      console.log("object id is ",taskId)
+      const del=await axios.delete(`http://localhost:8080/delete/${objectId}`);
+      console.log("deleted",del)
       const response = await axios.get('http://localhost:8080/tasks');
         console.log(response.data)
         setTasks(response.data);
@@ -58,16 +64,19 @@ const TaskList = () => {
     }
   };
 
-  const handleSave = async (event: React.FormEvent) => {
+  const handleSave = async (event: React.FormEvent,taskId:string) => {
     event.preventDefault();
     // Save the edited task
     // Example implementation, assuming you have an endpoint for saving edited tasks
     try {
-      await axios.put(`http://localhost:8080/edit-task`, { task: editingTask });
+             const objectId = taskId["$oid"];
+
+      await axios.put(`http://localhost:8080/edit/${objectId}`, { task: editingTask });
       // Refresh task list
       const response = await axios.get('http://localhost:8080/tasks');
       setTasks(response.data);
-      setEditingTask(null);
+     setEditingTaskId(null);
+      setEditTaskValue('');
     } catch (error) {
       console.error('Error saving task:', error);
     }
@@ -124,7 +133,7 @@ const TaskList = () => {
              
               <td className="">
   <div className="flex justify-start ml-2">
-    <button onClick={() => handleEdit(task)} className="text-blue-500"><Pencil size={20} /></button>
+    <button onClick={() => handleEdit(task._id)} className="text-blue-500"><Pencil size={20} /></button>
   </div>
 </td>
 <td className="">
@@ -183,24 +192,22 @@ const TaskList = () => {
           </div>
         </div>
       </div>
-
-      {editingTask && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center ">
+ {edit && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <form onSubmit={handleSave} className="bg-gray-800 p-6 rounded-lg w-full max-w-3xl min-h-64">
             <h2 className="text-xl font-bold mb-4">Edit Task</h2>
             <div className="mb-4">
-              <label className="block text-sm font-bold mb-2" htmlFor="title">
-                Title
+              <label className="block text-sm font-bold mb-2" htmlFor="task">
+                Task
               </label>
               <input
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline h-12"
-                id="title"
+                id="task"
                 type="text"
-                value={editingTask.title}
-                onChange={(e) => setEditingTask({...editingTask, title: e.target.value})}
+                value={editTaskValue}
+                onChange={(e) => setEditTaskValue(e.target.value)}
               />
             </div>
-           
             <div className="flex items-center justify-between">
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-3"
@@ -211,7 +218,10 @@ const TaskList = () => {
               <button
                 className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-3"
                 type="button"
-                onClick={() => setEditingTask(null)}
+                onClick={() => {
+                  setEditingTaskId(null);
+                  setEditTaskValue('');
+                }}
               >
                 Cancel
               </button>
