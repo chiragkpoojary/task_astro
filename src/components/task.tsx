@@ -5,7 +5,7 @@ import axios from 'axios';
 
 interface Task {
    _id: string;
-  title: string;
+  task: string;
 }
 
 const TaskList = () => {
@@ -20,8 +20,8 @@ const [edit,setedit]=useState<boolean>(false);
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/tasks');
-        console.log(response.data)
+        const response = await axios.get('https://rust-task-optimized.onrender.com/tasks');
+
         setTasks(response.data);
       } catch (error) {
         console.error('Error fetching tasks:', error);
@@ -30,13 +30,14 @@ const [edit,setedit]=useState<boolean>(false);
     fetchTasks();
   }, []);
 
+
   const addTask = async () => {
     try {
      
-      await axios.post('http://localhost:8080/addtask', { task: newTask });
+      await axios.post('https://rust-task-optimized.onrender.com/addtask', { task: newTask });
        setNewTask(" ")
-      const response = await axios.get('http://localhost:8080/tasks');
-      console.log(response.data)
+      const response = await axios.get('https://rust-task-optimized.onrender.com/tasks');
+
       setTasks(response.data);
     } catch (error) {
       console.error('Error adding task:', error);
@@ -44,19 +45,22 @@ const [edit,setedit]=useState<boolean>(false);
   };
 
   const handleEdit = (task: Task) => {
-    setEditingTaskId(task._id);
+const objectId = task._id["$oid"];
+
+
+    setEditingTaskId(objectId);
     setedit(true)
-    setEditTaskValue(task.title);
+
+    setEditTaskValue(task.task);
   };
   const handleDelete = async (taskId: string) => {
     try {
        const objectId = taskId["$oid"];
-      console.log("objectId is ", objectId)
-      console.log("object id is ",taskId)
-      const del=await axios.delete(`http://localhost:8080/delete/${objectId}`);
-      console.log("deleted",del)
-      const response = await axios.get('http://localhost:8080/tasks');
-        console.log(response.data)
+     
+      const del=await axios.delete(`https://rust-task-optimized.onrender.com/delete/${objectId}`);
+     
+      const response = await axios.get('https://rust-task-optimized.onrender.com/tasks');
+        
         setTasks(response.data);
  // Update the state after deletion
     } catch (error) {
@@ -64,21 +68,23 @@ const [edit,setedit]=useState<boolean>(false);
     }
   };
 
-  const handleSave = async (event: React.FormEvent,taskId:string) => {
-    event.preventDefault();
-    // Save the edited task
-    // Example implementation, assuming you have an endpoint for saving edited tasks
-    try {
-             const objectId = taskId["$oid"];
+ const handleSave = async (event: React.FormEvent) => {
 
-      await axios.put(`http://localhost:8080/edit/${objectId}`, { task: editingTask });
-      // Refresh task list
-      const response = await axios.get('http://localhost:8080/tasks');
-      setTasks(response.data);
-     setEditingTaskId(null);
-      setEditTaskValue('');
-    } catch (error) {
-      console.error('Error saving task:', error);
+    event.preventDefault();
+    if (edit) {
+      try {
+            await axios.put(`https://rust-task-optimized.onrender.com/edit/${editingTaskId}`, {
+        task: editTaskValue // Match the key name with the backend
+    });
+          setEditingTaskId(null);
+                  setEditTaskValue('');
+                   setedit(false)
+        const response = await axios.get('https://rust-task-optimized.onrender.com/tasks');
+        setTasks(response.data);
+      
+      } catch (error) {
+        console.error('Error saving task:', error);
+      }
     }
   };
 
@@ -93,19 +99,24 @@ const [edit,setedit]=useState<boolean>(false);
       <p className="text-gray-400 mb-6">Here's a list of your tasks</p>
       
       <div className="relative w-full max-w-xl">
-  <input
-    type="text"
-    placeholder="Add tasks..."
-    className="bg-gray-800 text-white p-4 pr-16 rounded w-full"
+  <form onSubmit={(e) => {
+    e.preventDefault(); 
+    addTask(); 
+}}>
+    <input
+        type="text"
+        placeholder="Add tasks..."
+        className="bg-gray-800 text-white p-4 pr-16 rounded w-full"
         onChange={(e) => setNewTask(e.target.value)}
-          value={newTask}
-  />
-  <Button
-    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-400 py-1 px-3 text-sm font-semibold text-white rounded-md shadow-inner focus:outline-none hover:bg-gray-600 w-20 h-10 "
-          onClick={addTask}
-  >
-    Add
-  </Button>
+        value={newTask}
+    />
+    <Button
+        type="submit" 
+        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-400 py-1 px-3 text-sm font-semibold text-white rounded-md shadow-inner focus:outline-none hover:bg-gray-600 w-20 h-10"
+    >
+        Add
+    </Button>
+</form>
 </div>
 
 
@@ -133,7 +144,7 @@ const [edit,setedit]=useState<boolean>(false);
              
               <td className="">
   <div className="flex justify-start ml-2">
-    <button onClick={() => handleEdit(task._id)} className="text-blue-500"><Pencil size={20} /></button>
+    <button onClick={() => handleEdit(task)} className="text-blue-500"><Pencil size={20} /></button>
   </div>
 </td>
 <td className="">
@@ -192,7 +203,7 @@ const [edit,setedit]=useState<boolean>(false);
           </div>
         </div>
       </div>
- {edit && (
+ {edit && setEditingTaskId && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <form onSubmit={handleSave} className="bg-gray-800 p-6 rounded-lg w-full max-w-3xl min-h-64">
             <h2 className="text-xl font-bold mb-4">Edit Task</h2>
@@ -212,6 +223,7 @@ const [edit,setedit]=useState<boolean>(false);
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-3"
                 type="submit"
+                onClick={handleSave}
               >
                 Save Changes
               </button>
@@ -221,6 +233,7 @@ const [edit,setedit]=useState<boolean>(false);
                 onClick={() => {
                   setEditingTaskId(null);
                   setEditTaskValue('');
+                   setedit(false)
                 }}
               >
                 Cancel
