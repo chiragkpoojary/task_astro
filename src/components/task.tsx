@@ -4,7 +4,9 @@ import { Button } from '@headlessui/react';
 import axios from 'axios';
 
 interface Task {
-   _id: string;
+  taskId: {
+    $oid: string;
+  };
   task: string;
 }
 
@@ -45,7 +47,7 @@ const [edit,setedit]=useState<boolean>(false);
   };
 
   const handleEdit = (task: Task) => {
-const objectId = task._id["$oid"];
+const objectId = task.taskId["$oid"];
 
 
     setEditingTaskId(objectId);
@@ -53,16 +55,16 @@ const objectId = task._id["$oid"];
 
     setEditTaskValue(task.task);
   };
-  const handleDelete = async (taskId: string) => {
+  const handleDelete = async (task: Task) => {
     try {
-       const objectId = taskId["$oid"];
+      const objectId = task.taskId["$oid"];
      
       const del=await axios.delete(`https://rust-task-optimized.onrender.com/delete/${objectId}`);
      
       const response = await axios.get('https://rust-task-optimized.onrender.com/tasks');
         
         setTasks(response.data);
- // Update the state after deletion
+
     } catch (error) {
       console.error('Error deleting task:', error);
     }
@@ -74,7 +76,7 @@ const objectId = task._id["$oid"];
     if (edit) {
       try {
             await axios.put(`https://rust-task-optimized.onrender.com/edit/${editingTaskId}`, {
-        task: editTaskValue // Match the key name with the backend
+        task: editTaskValue 
     });
           setEditingTaskId(null);
                   setEditTaskValue('');
@@ -149,7 +151,7 @@ const objectId = task._id["$oid"];
 </td>
 <td className="">
   <div className="flex justify-start ml-5">
-    <button onClick={() => handleDelete(task._id)} className="text-red-500"><Trash2 size={20} /></button>
+    <button onClick={() => handleDelete(task)} className="text-red-500"><Trash2 size={20} /></button>
   </div>
 </td>
             </tr>
