@@ -1,8 +1,8 @@
 ---
-import TaskDashboard from "../components/task";
 
+import Signin from "../components/sign_in";
 ---
- 
+
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -12,9 +12,7 @@ import TaskDashboard from "../components/task";
     <title>Astro</title>
   </head>
   <body class="bg-gray-900">
-      <!--<Signin client:load />-->
-      <TaskDashboard client:visible/>
-      
-   
+
+    <Signin client:visible />
   </body>
 </html>

@@ -1,6 +1,6 @@
 ---
-
 import TaskDashboard from "../components/task";
+
 ---
  
 <html lang="en">
@@ -12,7 +12,9 @@ import TaskDashboard from "../components/task";
     <title>Astro</title>
   </head>
   <body class="bg-gray-900">
+      <!--<Signin client:load />-->
+      <TaskDashboard client:visible/>
+      
    
-    <TaskDashboard client:visible />
   </body>
 </html>
