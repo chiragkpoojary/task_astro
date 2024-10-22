@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@headlessui/react";
 import axios from "axios";
-
+import { FaArrowRightToBracket } from "react-icons/fa6";
 interface Task {
   _id: {
     $oid: string;
@@ -26,8 +26,10 @@ const TaskList = () => {
         let token = sessionStorage.getItem("jwt");
         if(token)
         token = token.replace(/^"|"$/g, '');
-        
-        console.log(token)
+      else{
+        window.location.href = "/";
+        return
+      }
         const response = await axios.get("http://localhost:8080/tasks", {
           headers: {
             Authorization:  `Bearer ${token}`, 
@@ -37,6 +39,7 @@ const TaskList = () => {
         setTasks(response.data);
       } catch (error) {
         console.error("Error fetching tasks:", error);
+
       }
     };
     fetchTasks();
@@ -47,6 +50,10 @@ const TaskList = () => {
       let token = sessionStorage.getItem("jwt");
       if(token)
         token = token.replace(/^"|"$/g, '');
+      else{
+        window.location.href = "/";
+        return;
+      }
       const res= await axios.post("http://localhost:8080/addtask", {
         task: newTask,
     }, {
@@ -140,12 +147,21 @@ const TaskList = () => {
   const indexOfFirstTask = indexOfLastTask - rowsPerPage;
   const currentTasks = tasks.slice(indexOfFirstTask, indexOfLastTask);
   const totalPages = Math.ceil(tasks.length / rowsPerPage);
-
+function handleLogout(){
+sessionStorage.removeItem("jwt");
+window.location.href="/"
+}
   return (
     <div className="bg-gray-900 text-white p-6 rounded-lg">
-      <h1 className="text-2xl font-bold mb-4">Welcome back!</h1>
-      <p className="text-gray-400 mb-6">Here's a list of your tasks</p>
-
+<div className="flex justify-between items-center mb-6">
+  <div>
+    <h1 className="text-2xl font-bold">Welcome back!</h1>
+    <p className="text-gray-400">Here's a list of your tasks</p>
+  </div>
+  <Button onClick={handleLogout} className="bg-red-400 text-white px-4 py-2 rounded-md flex text-center justify-center items-center gap-2 ">
+  <FaArrowRightToBracket /> Logout
+  </Button>
+</div>
       <div className="relative w-full max-w-xl">
         <form
           onSubmit={(e) => {

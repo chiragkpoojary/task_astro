@@ -57,10 +57,9 @@ export default function Example() {
       });
 
       const result = await response.json();
-      console.log(result.token);
+   
       sessionStorage.setItem("jwt",result.token)
       if (response.ok) {
-        console.log(result);
         setIsOpen(true);
         setloading(false); // Show success dialog on successful sign-in
       } else {
@@ -71,7 +70,10 @@ export default function Example() {
       setError("An error occurred during signin.");
     }
   };
-
+const authsucess=()=>{
+setIsOpen(false);
+window.location.href="/task"
+}
   return (
     <>
       <div className="min-h-screen flex justify-center items-center bg-gradient-to-r from-blue-600 via-indigo-500 to-purple-600">
@@ -127,7 +129,7 @@ export default function Example() {
             className="relative z-50"
           >
             <div className="fixed inset-0 flex items-center justify-center p-4">
-              <DialogPanel className="max-w-lg space-y-4 border bg-white p-12 rounded-lg shadow-md">
+              <DialogPanel className="min-w-fit space-y-4 border bg-white p-12 rounded-lg shadow-md">
                 <DialogTitle className="font-bold text-lg">
                   Signin Successful
                 </DialogTitle>
@@ -136,8 +138,8 @@ export default function Example() {
                 </Description>
                 <div className="flex justify-end gap-4">
                   <Button
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                    onClick={() => setIsOpen(false)}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-md "
+                    onClick={authsucess}
                   >
                     <a href="/task"> OK</a>
                   </Button>
