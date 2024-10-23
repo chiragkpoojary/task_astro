@@ -25,9 +25,9 @@ const TaskList = () => {
       try {
         let token = sessionStorage.getItem("jwt");
         if(token){
-          console.log(token);
+          
           token = token.replace(/^"|"$/g, '');
-          console.log(token);
+         
         }
           
       else{
