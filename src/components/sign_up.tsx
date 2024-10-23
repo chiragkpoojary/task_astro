@@ -43,7 +43,7 @@ export default function Example() {
     setError(null);
     try {
       setloading(true);
-      const response = await fetch("http://localhost:8080/signup", {
+      const response = await fetch("https://rust-task-optimized.onrender.com/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

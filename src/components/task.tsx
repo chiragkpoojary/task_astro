@@ -24,13 +24,17 @@ const TaskList = () => {
      
       try {
         let token = sessionStorage.getItem("jwt");
-        if(token)
-        token = token.replace(/^"|"$/g, '');
+        if(token){
+          console.log(token);
+          token = token.replace(/^"|"$/g, '');
+          console.log(token);
+        }
+          
       else{
         window.location.href = "/";
         return
       }
-        const response = await axios.get("http://localhost:8080/tasks", {
+        const response = await axios.get("https://rust-task-optimized.onrender.com/tasks", {
           headers: {
             Authorization:  `Bearer ${token}`, 
           },
@@ -39,6 +43,7 @@ const TaskList = () => {
         setTasks(response.data);
       } catch (error) {
         console.error("Error fetching tasks:", error);
+        window.location.href = "/";
 
       }
     };
@@ -54,7 +59,7 @@ const TaskList = () => {
         window.location.href = "/";
         return;
       }
-      const res= await axios.post("http://localhost:8080/addtask", {
+      const res= await axios.post("https://rust-task-optimized.onrender.com/addtask", {
         task: newTask,
     }, {
         headers: {
@@ -63,7 +68,7 @@ const TaskList = () => {
     });
       setNewTask(" ");
      
-      const response = await axios.get("http://localhost:8080/tasks", {
+      const response = await axios.get("https://rust-task-optimized.onrender.com/tasks", {
         headers: {
           Authorization: `Bearer ${token}`, 
         },
@@ -91,7 +96,7 @@ const TaskList = () => {
       const objectId = task._id["$oid"];
 
       const del = await axios.delete(
-        `http://localhost:8080/delete/${objectId}`,
+        `https://rust-task-optimized.onrender.com/delete/${objectId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`, 
@@ -100,7 +105,7 @@ const TaskList = () => {
       );
 
    
-      const response = await axios.get("http://localhost:8080/tasks", {
+      const response = await axios.get("https://rust-task-optimized.onrender.com/tasks", {
         headers: {
           Authorization: `Bearer ${token}`, 
         },
@@ -119,7 +124,7 @@ const TaskList = () => {
         let token = sessionStorage.getItem("jwt");
         if(token)
         token = token.replace(/^"|"$/g, '');
-        await axios.put(`http://localhost:8080/edit/${editingTaskId}`, {
+        await axios.put(`https://rust-task-optimized.onrender.com/edit/${editingTaskId}`, {
           task: editTaskValue,
 
         },{
@@ -131,7 +136,7 @@ const TaskList = () => {
         setEditTaskValue("");
         setedit(false);
        
-        const response = await axios.get("http://localhost:8080/tasks", {
+        const response = await axios.get("https://rust-task-optimized.onrender.com/tasks", {
           headers: {
             Authorization: `Bearer ${token}`, 
           },
