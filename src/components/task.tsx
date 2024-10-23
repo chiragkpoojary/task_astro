@@ -77,6 +77,7 @@ const TaskList = () => {
       setTasks(response.data);
     } catch (error) {
       console.error("Error adding task:", error);
+      window.location.href = "/";
     }
   };
 
@@ -114,6 +115,7 @@ const TaskList = () => {
       setTasks(response.data);
     } catch (error) {
       console.error("Error deleting task:", error);
+      window.location.href = "/";
     }
   };
 
@@ -144,6 +146,7 @@ const TaskList = () => {
         setTasks(response.data);
       } catch (error) {
         console.error("Error saving task:", error);
+        window.location.href = "/";
       }
     }
   };
